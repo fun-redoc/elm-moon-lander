@@ -16,7 +16,7 @@ import App.Signal exposing (..)
 import ConsoleLog exposing (log) 
 
 smoothLanded : Rocket -> Bool
-smoothLanded r = (fst r.vel < 0.1 && fst r.vel > -0.1) && (snd r.vel <= 0 && snd r.vel > -0.1) && (abs r.alpha < 10)
+smoothLanded r = (fst r.vel < crashSpeed && fst r.vel > -crashSpeed) && (snd r.vel <= 0 && snd r.vel > -crashSpeed) && (abs r.alpha < crashAngle)
 
 
 -- UPDATE --
@@ -41,10 +41,10 @@ update e gameState =
                                 velocity o = { o | vel <-  vecAdd o.vel <| vecMulS o.acc time }
                                 moveObject o = { o | pos<- vecAdd o.pos <| vecMulS o.vel time }
                                 rotateObject o = { o | alpha <- o.alpha-rot }
-                                consumeFuel o ={ o | fuel <- o.fuel - (100 * ign') }
+                                consumeFuel o ={ o | fuel <- o.fuel - (consumptionFactor * ign') }
                                 rocket' = g.rocket |> gravityOnObject |> ignition |> rotateObject |> velocity |> moveObject |> consumeFuel
                                 rocketHullOnPosition = map (\v->vecAdd v rocket'.pos) rocket'.hull
-                                landed = (collision 100 (rocketHullOnPosition, polySupport) (g.base.hull,polySupport))
+                                landed = (collision 10 (rocketHullOnPosition, polySupport) (g.base.hull,polySupport))
                             in  if landed
                                    then 
                                     if smoothLanded rocket'

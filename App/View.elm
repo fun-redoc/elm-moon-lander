@@ -16,6 +16,11 @@ import App.Utils exposing (..)
 import App.Model exposing (..)
 import App.Vec exposing (..)
 
+-- vieport
+(width, height) = (400,400)
+(hWidth, hHeight) = (width/2,height/2)
+transformToViewport = transformWorld  (hWidth, hHeight) (worldWidth, worldHeight/2)
+
 testIt = let poly1 = [(-15,-10),(0,15),(12,-5)]
              poly2 = [(-9,13),(6,13),(-2,22)]
          in  collision 10 (poly1, polySupport) (poly2, polySupport)
@@ -64,9 +69,10 @@ render (w,h) gameState =
                       in  GC.collage width height [formText] |> E.color C.white |> E.container w h E.middle |> E.color C.lightGray
     (Playing game) -> let formHudFuel = game.rocket.fuel  |> truncate |> hudFuel
                           formHudVel = game.rocket.vel |> hudVel
-                          formRocket = GC.polygon (scaleToViewPort game.rocket.hull) |> GC.filled C.lightRed |> GC.rotate game.rocket.alpha |> GC.move (scaleVecToViewPort game.rocket.pos)
-                          formBase = GC.polygon (scaleToViewPort game.base.hull) |> GC.filled C.lightBlue |> GC.move game.base.pos
-                          forms = [formHudFuel, formHudVel, formRocket, formBase] 
-                      in  GC.collage width height forms |> E.color C.white  
+                          formRocket = GC.polygon game.rocket.hull |> GC.filled C.lightRed |> GC.rotate game.rocket.alpha |> GC.move game.rocket.pos
+                          formBase = GC.polygon game.base.hull |> GC.filled C.lightBlue |> GC.move game.base.pos
+                          forms = [ formRocket, formBase] 
+                          fommsInViewport = forms |> GC.groupTransform transformToViewport |> toList |> List.append [formHudFuel, formHudVel]
+                      in  GC.collage width height fommsInViewport |> E.color C.white  
                                                    |> E.container w h E.middle 
                                                    |> E.color C.lightGray

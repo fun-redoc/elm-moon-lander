@@ -26,7 +26,7 @@ spawnSignal : Signal Time
 spawnSignal = (T.every (T.second*0.5))
 delta = AnimationFrame.frame
 
-randomX = (Random.float (-hWidth) hWidth) 
+randomX = (Random.float (-worldWidth) worldWidth) 
 randomXSignal : Signal Time -> Signal (Maybe (Float, Random.Seed))
 randomXSignal timeSignal = S.foldp (\t m-> case m of
                                   Nothing -> Just (Random.generate randomX (Random.initialSeed (round t))) 
