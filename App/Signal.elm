@@ -51,8 +51,8 @@ startGame = Signal.dropRepeats <|  Signal.map (\b->if b then StartGame else NoOp
 arrows = Dict.fromList [(37,(-rotationUnit,0 )),(38,(0,ignitionVelo)),(39,(rotationUnit,0))]
 mapArrow : Int -> (Float,Float)
 mapArrow k = Dict.get k arrows |> Maybe.withDefault (0,0)
-keysToActions : Set Int -> Set (Float,Float)
-keysToActions = Set.map mapArrow
+--keysToActions : Set Int -> Set (Float,Float)
+--keysToActions = Set.map mapArrow
 ignition : Signal (Float,Float)
 ignition = (Signal.map ((Set.foldl (\(x,y) (ax,ay)-> (ax+x,ay+y)) (0,0)) << (Set.map mapArrow)) Keyboard.keysDown)
 

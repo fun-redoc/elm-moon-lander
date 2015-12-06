@@ -3,7 +3,7 @@ module App.Update (update) where
 import Signal as S exposing ((<~),(~))
 import Color as C exposing (Color)
 import Time as T exposing (Time)
-import List exposing (..)
+import List as L exposing (..)
 import App.Collision exposing (..)
 
 import App.Vec   exposing (..)
@@ -43,14 +43,20 @@ update e gameState =
                                 rotateObject o = { o | alpha <- o.alpha-rot }
                                 consumeFuel o ={ o | fuel <- o.fuel - (consumptionFactor * ign') }
                                 rocket' = g.rocket |> gravityOnObject |> ignition |> rotateObject |> velocity |> moveObject |> consumeFuel
-                                rocketHullOnPosition = map (\v->vecAdd v rocket'.pos) rocket'.hull
+                                hullOnPosition o = map (\v->vecAdd v o.pos) o.hull
+                                rocketHullOnPosition = hullOnPosition rocket'
                                 landed = (collision 10 (rocketHullOnPosition, polySupport) (g.base.hull,polySupport))
+                                crashed p1 p2 = collision 10 (p1, polySupport) (p2, polySupport)
+                                rocketCrashedOnRock = crashed rocketHullOnPosition
+                                rocketCrashedOnRocks = L.any (\rock -> rocketCrashedOnRock <| hullOnPosition rock) g.rocks
                             in  if landed
                                    then 
                                     if smoothLanded rocket'
                                        then LevelCompleted { g | score <- truncate g.rocket.fuel }
                                        else GameOver g
-                                   else Playing <| { g | rocket <- rocket'}
+                                   else if rocketCrashedOnRocks 
+                                           then GameOver g
+                                           else Playing <| { g | rocket <- rocket'}
                           Add {- object -} -> gameState -- Add a new object to Game
                           Pause       -> Paused g
                           _           -> Playing g -- DEFAULT NoOp

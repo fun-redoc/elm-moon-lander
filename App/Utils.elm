@@ -19,4 +19,4 @@ center (x,y) = (x//2,y//2)
 toList : a -> List a
 toList x = [x]
 
-transformWorld (vw,vh) (ww,wh) = multiply (translation 0 -vh) (scale (vh/wh)) 
+transformWorld (vw,vh) (ww,wh) = multiply (translation 0 (-vh)) (scale (2*(vw/ww)))  -- ((max vw vh)/(max ww wh))) 
