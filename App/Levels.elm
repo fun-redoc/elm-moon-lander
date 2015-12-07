@@ -28,14 +28,14 @@ testLevel = { maxFuel = 1000
 
 levels : List AsciiLevel
 levels = [  { maxFuel = 1000
-            , playField = [ "X          X"
+            , playField = [ "X    @     X"
                           , "XX         X"
                           , "XXX      XXX"
-                          , "X    @    XX"
+                          , "X         XX"
                           , "XX         X"
                           , "X          X"
                           , "X X         "
-                          , "XXX.....XXXX"
+                          , "............"
                           ]
             }
          ,  { maxFuel = 2000
@@ -105,10 +105,10 @@ cohesion2 c ls =
 asciiToGame : AsciiLevel -> Game
 asciiToGame {maxFuel, playField} = 
     let (maxx,maxy, asciiWithCoord) = mkCoord playField
-        (fmaxx,fmaxy) = (toFloat maxx, toFloat maxy)
+        (fmaxx,fmaxy) = ((toFloat maxx)-1, (toFloat maxy)-1)
         --normalize (x,y) = (toFloat x, toFloat y) --let (fx,fy) = (toFloat x, toFloat y) in ((2*fx/fmaxx)-1,(2*fy/fmaxy)-1)
-        normalize (x,y) = let (fx,fy) = (toFloat x, toFloat y) in ((2*fx/fmaxx)-1,(2*fy/fmaxy)-1)
-    in  L.foldl (\(x,y,c) res-> if | c == 'X' -> { res | rocks <- ((normalize (x,y))::res.rocks)}
+        normalize (x,y) = let (fx,fy) = (toFloat x, toFloat y) in ((fx/(fmaxx))-0.5,(0.5-(fy/(fmaxy))))
+    in log "--> " <|   L.foldl (\(x,y,c) res-> if | c == 'X' -> { res | rocks <- ((normalize (x,y))::res.rocks)}
                                    | c == '.' -> { res | base <- ((normalize (x,y))::res.base)}
                                    | c == '@' -> { res | rocket <- ((normalize (x,y))::res.rocket) }
                                    | otherwise -> res

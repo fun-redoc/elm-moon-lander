@@ -30,9 +30,9 @@ update e gameState =
     (Playing g) -> if isGameOver g 
                    then gameOver g
                    else 
-                    if isLevelCompleted g
-                    then LevelCompleted g
-                    else
+--                    if isLevelCompleted g
+--                    then LevelCompleted g
+--                    else
                        case e of
                           Tick (time, (rot,ign)) -> 
                             let ign' = if g.rocket.fuel > 0 then ign else 0

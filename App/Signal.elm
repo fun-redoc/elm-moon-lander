@@ -15,8 +15,6 @@ import Dict
 
 import App.Vec exposing (..)
 import App.Const exposing (..)
-import App.Utils exposing (..)
-import App.Model exposing (..)
 import App.Action exposing (..)
 
 import ConsoleLog exposing (log)
