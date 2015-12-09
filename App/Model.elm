@@ -42,9 +42,15 @@ defaultGame = {  level = 0
                , totalScore = 0
                , rocket = defaultRocket
                , base = defaultBase
-               , rocks = [] -- rocksForLevel 1
+               , rocks = [] 
               }
-rocksForLevel k = List.map (\(x,y) -> {defaultRock | pos <- (x*(worldWidth),(y+0.5)*(worldHeight)) }) (Levels.level k).rocks
+rocksForLevel k = let level = (Levels.level k)
+                      rocks = level.rocks
+                      (w,h) = level.size
+                      (fw, fh) = (toFloat (w-1), toFloat (h-1))
+                      (hw, hh) = (worldWidth*0.5/fw, worldHeight*0.5/fh)
+                      hull = [(-hw,hh),(hw,hh), (hw,-hh),(-hw,-hh)]
+                   in  rocks |> List.map (\(x,y) -> {pos = (x*(worldWidth),(y+0.5)*(worldHeight)),  hull = hull})
 baseForLevel k =    (Levels.level k).base |> log "base"
                  |> List.foldl (\(x,y) ((maxx,maxy),(minx,miny)) -> (((max x maxx),(max y maxy)),((min x minx),(min y miny)))) ((-1,-1),(1,1))
                  |> log "min max"
@@ -52,7 +58,6 @@ baseForLevel k =    (Levels.level k).base |> log "base"
                  |> (\((centerx,centery),((maxx,maxy),(minx,miny))) -> {defaultBase | pos <- log "pos" (centerx*(worldWidth),(centery+0.5)*worldHeight),
                                                                                       hull <- List.map (\(x,y)->(x*worldWidth,(y+0.5)*(worldHeight))) [(minx, maxy),(maxx,maxy),(maxx, miny), (minx,miny)]})
 rocketForLevel k = Maybe.withDefault defaultRocket (List.head <| List.map (\(x,y) -> {defaultRocket | pos <- (x*(worldWidth),(y+0.5)*(worldHeight)) }) (Levels.level k).rocket)
-
 
 type GameState = NewGame Game | Playing Game | Paused Game | GameOver Game | LevelCompleted Game
 defaultGameState = NewGame <| nextLevel <| defaultGame
@@ -64,9 +69,6 @@ gameOver : Game -> GameState
 gameOver g = GameOver g
 
 levelScoreTreshold = 10
-
---isLevelCompleted : Game -> Bool
---isLevelCompleted {score} = score == levelScoreTreshold
 
 nextLevel : Game -> Game
 nextLevel g = { g | level <- g.level + 1, score <- 0, totalScore <- g.totalScore+g.score,

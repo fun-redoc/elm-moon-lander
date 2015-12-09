@@ -10,8 +10,8 @@ import ConsoleLog exposing (log)
 type alias AsciiLevel = { maxFuel:Float, playField:List String }
 defaultAsciiLevel = {maxFuel=0, playField=[]}
 type alias Hull = List (Float,Float)
-type alias Game = {maxFuel:Float,rocket:Hull, base:Hull, rocks:Hull}
-defaultGame = {maxFuel=0, rocket=[], base=[], rocks=[]}
+type alias Game = {maxFuel:Float,size:(Int,Int),rocket:Hull, base:Hull, rocks:Hull}
+defaultGame = {maxFuel=0, size=(0,0), rocket=[], base=[], rocks=[]}
 
 testLevel : AsciiLevel
 testLevel = { maxFuel = 1000
@@ -35,15 +35,15 @@ levels = [  { maxFuel = 1000
                           , "XX         X"
                           , "X          X"
                           , "X X         "
-                          , "............"
+                          , "XX........XX"
                           ]
             }
          ,  { maxFuel = 2000
             , playField = [ "X   @      X"
                           , "XX         X"
-                          , "XXXXXX    XX"
-                          , "X         XX"
-                          , "XX         X"
+                          , "XXXX      XX"
+                          , "XXX       XX"
+                          , "XXXXX      X"
                           , "X          X"
                           , "X X         "
                           , "XXX.....XXXX"
@@ -100,19 +100,17 @@ cohesion2 c ls =
                                   in if k /= c then classifyAll (classified, t) else classifyAll ((toShow <| result)::classified, stillUnclassified)
   in fst <| classifyAll ([],L.filter (\(_,_,k) -> k == c) playField)
 
-    
 
 asciiToGame : AsciiLevel -> Game
 asciiToGame {maxFuel, playField} = 
     let (maxx,maxy, asciiWithCoord) = mkCoord playField
         (fmaxx,fmaxy) = ((toFloat maxx)-1, (toFloat maxy)-1)
-        --normalize (x,y) = (toFloat x, toFloat y) --let (fx,fy) = (toFloat x, toFloat y) in ((2*fx/fmaxx)-1,(2*fy/fmaxy)-1)
         normalize (x,y) = let (fx,fy) = (toFloat x, toFloat y) in ((fx/(fmaxx))-0.5,(0.5-(fy/(fmaxy))))
-    in log "--> " <|   L.foldl (\(x,y,c) res-> if | c == 'X' -> { res | rocks <- ((normalize (x,y))::res.rocks)}
+    in  L.foldl (\(x,y,c) res-> if | c == 'X' -> { res | rocks <- ((normalize (x,y))::res.rocks)}
                                    | c == '.' -> { res | base <- ((normalize (x,y))::res.base)}
                                    | c == '@' -> { res | rocket <- ((normalize (x,y))::res.rocket) }
                                    | otherwise -> res
-                ) {maxFuel=maxFuel, rocket=[], base=[], rocks=[]} asciiWithCoord
+                ) {maxFuel=maxFuel, size=(maxx,maxy), rocket=[], base=[], rocks=[]} asciiWithCoord
 
 asciiLevel : Int -> Maybe AsciiLevel
 asciiLevel i = L.head <| L.drop (i-1) <| levels
