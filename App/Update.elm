@@ -30,14 +30,12 @@ update e gameState =
     (Playing g) -> if isGameOver g 
                    then gameOver g
                    else 
---                    if isLevelCompleted g
---                    then LevelCompleted g
---                    else
                        case e of
                           Tick (time, (rot,ign)) -> 
                             let ign' = if g.rocket.fuel > 0 then ign else 0
                                 gravityOnObject o = { o | acc <- vecAdd o.acc <| vecMulS gravity time }
-                                ignition o = { o | acc <- vecAdd o.acc <| flip vecMulS time <| vecRot (0,ign') o.alpha }
+                                ignition o = { o | acc <- vecAdd o.acc <| flip vecMulS time <| vecRot (0,ign') o.alpha
+                                                 , ignition <- if ign' > 0 then Just Up else Nothing }
                                 velocity o = { o | vel <-  vecAdd o.vel <| vecMulS o.acc time }
                                 moveObject o = { o | pos<- vecAdd o.pos <| vecMulS o.vel time }
                                 rotateObject o = { o | alpha <- o.alpha-rot }

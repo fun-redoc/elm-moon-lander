@@ -71,10 +71,13 @@ render (w,h) gameState =
     (Playing game) -> let formHudFuel = game.rocket.fuel  |> truncate |> hudFuel
                           formHudVel = game.rocket.vel |> hudVel
                           formRocket = GC.polygon game.rocket.hull |> GC.filled C.lightRed |> GC.rotate game.rocket.alpha |> GC.move game.rocket.pos
+                          formIgnition = GC.polygon game.rocket.ignitionHull |> GC.filled C.yellow |> GC.rotate game.rocket.alpha |> GC.move game.rocket.pos
                           formBase = GC.polygon game.base.hull |> GC.filled C.lightBlue |> GC.move game.base.pos
                           formRock : Rock -> GC.Form
                           formRock rock = GC.polygon rock.hull |> GC.filled C.brown |> GC.move rock.pos
-                          forms =  (L.map formRock game.rocks) ++ [ formRocket, formBase]
+                          forms =    (L.map formRock game.rocks) 
+                                  ++ (if game.rocket.ignition == Just Up then [formRocket,formIgnition] else [ formRocket])
+                                  ++ [formBase]
                           fommsInViewport = forms |> GC.groupTransform transformToViewport |> toList |> (\l -> List.append  l [formHudFuel, formHudVel])
                       in  GC.collage width height fommsInViewport |> E.color C.white  
                                                    |> E.container w h E.middle 

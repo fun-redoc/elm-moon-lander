@@ -2,7 +2,7 @@ module App.Model  (..)  where
 
 import Color as C exposing (Color)
 import List exposing (..)
-import Maybe exposing (..)
+import Maybe as Maybe exposing (..)
 
 import App.Const exposing (..)
 import App.Vec exposing (..)
@@ -17,13 +17,19 @@ type alias Level = Int
 
 type alias Polygon = List Vec
 
-type alias Rocket = { pos:Vec, vel:Vec, acc:Vec, alpha:Float, fuel:Float, hull:Polygon}
-defaultRocket = { pos = (0,0) --startHight) 
+type Direction = Left | Right | Up | Down
+
+type alias Rocket = { ignition:Maybe Direction, pos:Vec, vel:Vec, acc:Vec, alpha:Float, fuel:Float, hull:Polygon, ignitionHull:Polygon}
+(rocketWorldX, rocketWorldY) = (100,100)
+scaleRocketHull = List.map (\(x,y) -> (x*rocketWorldX/(worldWidth*0.5),y*rocketWorldY/(worldHeight*0.5))) -- the default rocket hull is defined within a 100x100 world
+defaultRocket = { ignition = Nothing
+                , pos = (0,0) --startHight) 
                 , vel = (0,0)
                 , acc = (0,0)
                 , alpha = 0
                 , fuel = maxFuel
-                , hull = [(-2.0,0.0), (0.0, 2.0), (2.0, 0.0), (2.0,-2.0), (-2.0,-2.0)]
+                , hull = [(-1.0,0.0), (0.0, 1.0), (1.0, 0.0), (1.0,-1.0), (-1.0,-1.0)] |> scaleRocketHull
+                , ignitionHull = [(-0.5,-1.0),(0.5,-1.0),(0.0,-1.5)] |> scaleRocketHull
 --                , hull = [(-4.0,2.0),(4.0,2.0),(4.0,0.0),(-4.0,0.0)]
                 }
 
@@ -44,6 +50,7 @@ defaultGame = {  level = 0
                , base = defaultBase
                , rocks = [] 
               }
+
 rocksForLevel k = let level = (Levels.level k)
                       rocks = level.rocks
                       (w,h) = level.size
@@ -51,12 +58,14 @@ rocksForLevel k = let level = (Levels.level k)
                       (hw, hh) = (worldWidth*0.5/fw, worldHeight*0.5/fh)
                       hull = [(-hw,hh),(hw,hh), (hw,-hh),(-hw,-hh)]
                    in  rocks |> List.map (\(x,y) -> {pos = (x*(worldWidth),(y+0.5)*(worldHeight)),  hull = hull})
+
 baseForLevel k =    (Levels.level k).base |> log "base"
                  |> List.foldl (\(x,y) ((maxx,maxy),(minx,miny)) -> (((max x maxx),(max y maxy)),((min x minx),(min y miny)))) ((-1,-1),(1,1))
                  |> log "min max"
                  |> (\((maxx,maxy),(minx,miny)) -> (((maxx+minx)/2,(maxy+miny)/2),((maxx,maxy+0.05),(minx,miny-0.05))))
                  |> (\((centerx,centery),((maxx,maxy),(minx,miny))) -> {defaultBase | pos <- log "pos" (centerx*(worldWidth),(centery+0.5)*worldHeight),
                                                                                       hull <- List.map (\(x,y)->(x*worldWidth,(y+0.5)*(worldHeight))) [(minx, maxy),(maxx,maxy),(maxx, miny), (minx,miny)]})
+
 rocketForLevel k = Maybe.withDefault defaultRocket (List.head <| List.map (\(x,y) -> {defaultRocket | pos <- (x*(worldWidth),(y+0.5)*(worldHeight)) }) (Levels.level k).rocket)
 
 type GameState = NewGame Game | Playing Game | Paused Game | GameOver Game | LevelCompleted Game
