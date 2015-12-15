@@ -55,6 +55,8 @@ hudVel (vx,vy) = let txtE = (vx |> ((*) 100) |> truncate, vy |> ((*) 100) |> tru
                      txtF = txtE |> GC.toForm |> GC.scale 1
                   in GC.move (-hWidth+(hWidth/100)+(txtEWidth/2),hHeight-3*((hHeight/100)+(txtEHeight/2))) <| (GC.group [txtF])
 
+viewRocket = E.image 8 8  "../images/ship.png" |> GC.toForm
+
 render : (Int, Int) -> GameState -> Element
 render (w,h) gameState = 
   case gameState of
@@ -70,7 +72,8 @@ render (w,h) gameState =
                       in  GC.collage width height [formText] |> E.color C.white |> E.container w h E.middle |> E.color C.lightGray
     (Playing game) -> let formHudFuel = game.rocket.fuel  |> truncate |> hudFuel
                           formHudVel = game.rocket.vel |> hudVel
-                          formRocket = GC.polygon game.rocket.hull |> GC.filled C.lightRed |> GC.rotate game.rocket.alpha |> GC.move game.rocket.pos
+                          formRocket = viewRocket |> GC.rotate game.rocket.alpha |> GC.move game.rocket.pos
+                          --formRocket = GC.polygon game.rocket.hull |> GC.filled C.lightRed |> GC.rotate game.rocket.alpha |> GC.move game.rocket.pos
                           formIgnition = GC.polygon game.rocket.ignitionHull |> GC.filled C.yellow |> GC.rotate game.rocket.alpha |> GC.move game.rocket.pos
                           formBase = GC.polygon game.base.hull |> GC.filled C.lightBlue |> GC.move game.base.pos
                           formRock : Rock -> GC.Form

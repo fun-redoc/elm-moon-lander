@@ -19,13 +19,14 @@ type alias Polygon = List Vec
 
 type Direction = Left | Right | Up | Down
 
-type alias Rocket = { ignition:Maybe Direction, pos:Vec, vel:Vec, acc:Vec, alpha:Float, fuel:Float, hull:Polygon, ignitionHull:Polygon}
+type alias Rocket = { ignition:Maybe Direction, size:Vec, pos:Vec, vel:Vec, acc:Vec, alpha:Float, fuel:Float, hull:Polygon, ignitionHull:Polygon}
 (rocketWorldX, rocketWorldY) = (100,100)
 scaleRocketHull = List.map (\(x,y) -> (x*rocketWorldX/(worldWidth*0.5),y*rocketWorldY/(worldHeight*0.5))) -- the default rocket hull is defined within a 100x100 world
 defaultRocket = { ignition = Nothing
+                , size = (0,0)
                 , pos = (0,0) --startHight) 
                 , vel = (0,0)
-                , acc = (0,0)
+                , acc = gravity -- (0,0)
                 , alpha = 0
                 , fuel = maxFuel
                 , hull = [(-1.0,0.0), (0.0, 1.0), (1.0, 0.0), (1.0,-1.0), (-1.0,-1.0)] |> scaleRocketHull
@@ -41,9 +42,12 @@ defaultBase = { pos = (0,0)
 type alias Rock = { pos:Vec, hull:Polygon }
 defaultRock = { pos = (0,0), hull = [(-3.5,3.5),(3.5,3.5),(3.5,-3.5),(-3.5,-3.5)] }
 
-type alias Game = { level:Level, score:Score, totalScore:Score, rocket:Rocket, base:Base, rocks:List Rock}
+type alias Game = { t:Float, dt:Float, fps: Float, level:Level, score:Score, totalScore:Score, rocket:Rocket, base:Base, rocks:List Rock}
 defaultGame : Game
-defaultGame = {  level = 0
+defaultGame = {  fps = 0
+               , t = 0.0
+               , dt = 0.0
+               , level = 0
                , score = 0
                , totalScore = 0
                , rocket = defaultRocket

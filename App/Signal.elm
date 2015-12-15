@@ -19,10 +19,10 @@ import App.Action exposing (..)
 
 import ConsoleLog exposing (log)
 -- SIGNALS --
---delta = T.fps 3
-spawnSignal : Signal Time
-spawnSignal = (T.every (T.second*0.5))
-delta = AnimationFrame.frame
+delta = T.fps 360
+--spawnSignal : Signal Time
+--spawnSignal = (T.every (T.second*0.5))
+--delta = AnimationFrame.frame
 
 randomX = (Random.float (-worldWidth) worldWidth) 
 randomXSignal : Signal Time -> Signal (Maybe (Float, Random.Seed))
@@ -46,7 +46,7 @@ pauseOrRun = Signal.dropRepeats <|  (Signal.map (\b->if b then Resume else Pause
 startGame : Signal Action
 startGame = Signal.dropRepeats <|  Signal.map (\b->if b then StartGame else NoOp) (Signal.map (Set.member <| Char.toCode 'S') Keyboard.keysDown)
 
-arrows = Dict.fromList [(37,(-rotationUnit,0 )),(38,(0,ignitionVelo)),(39,(rotationUnit,0))]
+arrows = Dict.fromList [(37,(-rotationUnit,0)),(38,(0,ignitionVelo)),(39,(rotationUnit,0))]
 mapArrow : Int -> (Float,Float)
 mapArrow k = Dict.get k arrows |> Maybe.withDefault (0,0)
 --keysToActions : Set Int -> Set (Float,Float)

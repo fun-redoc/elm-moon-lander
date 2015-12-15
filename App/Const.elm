@@ -14,5 +14,5 @@ startHight = 50
 worldHeight = 60 -- m
 worldWidth = 60 -- m
 
-ignitionVelo = (snd gravity) * (-2.9)
-rotationUnit = 4*3.81/360
+ignitionVelo = (snd gravity) * (-3.0)
+rotationUnit = 3.14159265359/360

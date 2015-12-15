@@ -31,22 +31,22 @@ update e gameState =
                    then gameOver g
                    else 
                        case e of
-                          Tick (time, (rot,ign)) -> 
+                          Tick (dt, (rot,ign)) -> 
                             let ign' = if g.rocket.fuel > 0 then ign else 0
-                                gravityOnObject o = { o | acc <- vecAdd o.acc <| vecMulS gravity time }
-                                ignition o = { o | acc <- vecAdd o.acc <| flip vecMulS time <| vecRot (0,ign') o.alpha
+                                acc o = vecAdd o.acc <| vecRot (0,ign') o.alpha
+                                velocity o = { o | vel <-  vecAdd o.vel <| vecMulS (acc o) dt 
                                                  , ignition <- if ign' > 0 then Just Up else Nothing }
-                                velocity o = { o | vel <-  vecAdd o.vel <| vecMulS o.acc time }
-                                moveObject o = { o | pos<- vecAdd o.pos <| vecMulS o.vel time }
+                                moveObject o = { o | pos<- vecAdd o.pos <| vecMulS o.vel dt }
                                 rotateObject o = { o | alpha <- o.alpha-rot }
                                 consumeFuel o ={ o | fuel <- o.fuel - (consumptionFactor * ign') }
-                                rocket' = g.rocket |> gravityOnObject |> ignition |> rotateObject |> velocity |> moveObject |> consumeFuel
+                                rocket' = g.rocket |> rotateObject |> velocity |> moveObject |> consumeFuel
                                 hullOnPosition o = map (\v->vecAdd v o.pos) o.hull
                                 rocketHullOnPosition = hullOnPosition rocket'
                                 landed = (collision 10 (rocketHullOnPosition, polySupport) (g.base.hull,polySupport))
                                 crashed p1 p2 = collision 10 (p1, polySupport) (p2, polySupport)
                                 rocketCrashedOnRock = crashed rocketHullOnPosition
                                 rocketCrashedOnRocks = L.any (\rock -> rocketCrashedOnRock <| hullOnPosition rock) g.rocks
+                                fps = (1/dt) 
                             in  if landed
                                    then 
                                     if smoothLanded rocket'
@@ -54,7 +54,7 @@ update e gameState =
                                        else GameOver g
                                    else if rocketCrashedOnRocks 
                                            then GameOver g
-                                           else Playing <| { g | rocket <- rocket'}
+                                           else Playing <| { g | t<-g.t+dt, fps <- fps, rocket <- rocket'}
                           Add {- object -} -> gameState -- Add a new object to Game
                           Pause       -> Paused g
                           _           -> Playing g -- DEFAULT NoOp
