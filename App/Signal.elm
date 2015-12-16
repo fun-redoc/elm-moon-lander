@@ -19,7 +19,7 @@ import App.Action exposing (..)
 
 import ConsoleLog exposing (log)
 -- SIGNALS --
-delta = T.fps 360
+delta = T.fps (1/dT) --360
 --spawnSignal : Signal Time
 --spawnSignal = (T.every (T.second*0.5))
 --delta = AnimationFrame.frame

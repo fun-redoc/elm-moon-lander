@@ -26,7 +26,7 @@ defaultRocket = { ignition = Nothing
                 , size = (0,0)
                 , pos = (0,0) --startHight) 
                 , vel = (0,0)
-                , acc = gravity -- (0,0)
+                , acc = (0,0)
                 , alpha = 0
                 , fuel = maxFuel
                 , hull = [(-1.0,0.0), (0.0, 1.0), (1.0, 0.0), (1.0,-1.0), (-1.0,-1.0)] |> scaleRocketHull

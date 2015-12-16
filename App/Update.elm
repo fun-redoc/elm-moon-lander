@@ -16,7 +16,7 @@ import App.Signal exposing (..)
 import ConsoleLog exposing (log) 
 
 smoothLanded : Rocket -> Bool
-smoothLanded r = (fst r.vel < crashSpeed && fst r.vel > -crashSpeed) && (snd r.vel <= 0 && snd r.vel > -crashSpeed) && (abs r.alpha < crashAngle)
+smoothLanded r = (fst r.vel < crashSpeed && fst r.vel > -crashSpeed) && (snd r.vel <= 0 && snd r.vel > -crashSpeed) && ((abs r.alpha) < crashAngle)
 
 
 -- UPDATE --
@@ -33,13 +33,11 @@ update e gameState =
                        case e of
                           Tick (dt, (rot,ign)) -> 
                             let ign' = if g.rocket.fuel > 0 then ign else 0
-                                acc o = vecAdd o.acc <| vecRot (0,ign') o.alpha
-                                velocity o = { o | vel <-  vecAdd o.vel <| vecMulS (acc o) dt 
-                                                 , ignition <- if ign' > 0 then Just Up else Nothing }
-                                moveObject o = { o | pos<- vecAdd o.pos <| vecMulS o.vel dt }
+                                acceleration o = {o | acc <- vecRot (0,ign') o.alpha}
+                                ignition o = { o | ignition <- if ign' > 0 then Just Up else Nothing }
                                 rotateObject o = { o | alpha <- o.alpha-rot }
                                 consumeFuel o ={ o | fuel <- o.fuel - (consumptionFactor * ign') }
-                                rocket' = g.rocket |> rotateObject |> velocity |> moveObject |> consumeFuel
+                                rocket' = g.rocket |> rotateObject |> ignition |> acceleration |> integrateRK4 dt |> consumeFuel
                                 hullOnPosition o = map (\v->vecAdd v o.pos) o.hull
                                 rocketHullOnPosition = hullOnPosition rocket'
                                 landed = (collision 10 (rocketHullOnPosition, polySupport) (g.base.hull,polySupport))

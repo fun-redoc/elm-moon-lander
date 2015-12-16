@@ -1,5 +1,8 @@
 module App.Const where
 
+
+dT = 1/60
+
 -- world
 gravity = (0,-1.622) -- m/s^2 moon: -1.622, earth: -9.807
 
