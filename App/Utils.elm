@@ -20,7 +20,8 @@ center (x,y) = (x//2,y//2)
 toList : a -> List a
 toList x = [x]
 
-transformWorld (vw,vh) (ww,wh) = multiply (translation 0 (-vh)) (scale (2*((max vw vh)/(max ww wh)))) 
+--transformWorld (vw,vh) (ww,wh) = multiply (translation 0 (-vh)) (scale (2*((max vw vh)/(max ww wh)))) 
+transformWorld (vw,vh) (ww,wh) =  (translation 0 (-vh)) `multiply` ((scaleX (2*vw/ww)) `multiply` (scaleY (2*vh/wh)))
 
 
 integrateEuler dt ({pos,vel,acc} as obj) =

@@ -18,7 +18,7 @@ import App.Model exposing (..)
 import App.Vec exposing (..)
 
 -- vieport
-(width, height) = (400,400)
+(width, height) = (500,600)
 (hWidth, hHeight) = (width/2,height/2)
 transformToViewport = transformWorld  (hWidth, hHeight) (worldWidth, worldHeight)
 

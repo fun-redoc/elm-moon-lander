@@ -12,6 +12,7 @@ import Random
 import Char
 import Set exposing (Set)
 import Dict
+import Touch
 
 import App.Vec exposing (..)
 import App.Const exposing (..)
@@ -44,7 +45,9 @@ pauseOrRun : Signal Action
 pauseOrRun = Signal.dropRepeats <|  (Signal.map (\b->if b then Resume else Pause) <| (Signal.foldp (\b s-> xor b s) True Keyboard.space))
 
 startGame : Signal Action
-startGame = Signal.dropRepeats <|  Signal.map (\b->if b then StartGame else NoOp) (Signal.map (Set.member <| Char.toCode 'S') Keyboard.keysDown)
+startGame = Signal.merge
+              (Signal.dropRepeats <| (always StartGame <~ Touch.taps))
+              (Signal.dropRepeats <|  Signal.map (\b->if b then StartGame else NoOp) (Signal.map (Set.member <| Char.toCode 'S') Keyboard.keysDown))
 
 arrows = Dict.fromList [(37,(-rotationUnit,0)),(38,(0,ignitionVelo)),(39,(rotationUnit,0))]
 mapArrow : Int -> (Float,Float)
