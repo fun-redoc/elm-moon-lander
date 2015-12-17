@@ -49,6 +49,17 @@ levels = [  { maxFuel = 1000
                           , "XXX.....XXXX"
                           ]
             }
+         ,  { maxFuel = 2000
+            , playField = [ "X   @      X"
+                          , "XX         X"
+                          , "XXXXXX    XX"
+                          , "XXX     XXXX"
+                          , "XXXXX      X"
+                          , "X          X"
+                          , "X X         "
+                          , "XXX....XXXXX"
+                          ]
+            }
          ]
 
 

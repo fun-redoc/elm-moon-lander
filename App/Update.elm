@@ -16,7 +16,7 @@ import App.Signal exposing (..)
 import ConsoleLog exposing (log) 
 
 smoothLanded : Rocket -> Bool
-smoothLanded r = (fst r.vel < crashSpeed && fst r.vel > -crashSpeed) && (snd r.vel <= 0 && snd r.vel > -crashSpeed) && ((abs r.alpha) < crashAngle)
+smoothLanded r = (fst r.vel < crashSpeed && fst r.vel > -crashSpeed) && (snd r.vel <= 0 && snd r.vel > -crashSpeed) && ((log "alpha" (abs r.alpha)) < crashAngle)
 
 
 -- UPDATE --
@@ -31,28 +31,31 @@ update e gameState =
                    then gameOver g
                    else 
                        case e of
-                          Tick (dt, (rot,ign)) -> 
+                          Tick (frameTime, (rot,ign)) -> 
                             let ign' = if g.rocket.fuel > 0 then ign else 0
+                                totalFrameTime = g.remainingFrameTime + (frameTime)
+                                iterations =  truncate (totalFrameTime/dT)
                                 acceleration o = {o | acc <- vecRot (0,ign') o.alpha}
                                 ignition o = { o | ignition <- if ign' > 0 then Just Up else Nothing }
                                 rotateObject o = { o | alpha <- o.alpha-rot }
                                 consumeFuel o ={ o | fuel <- o.fuel - (consumptionFactor * ign') }
-                                rocket' = g.rocket |> rotateObject |> ignition |> acceleration |> integrateRK4 dt |> consumeFuel
+                                rocket' = g.rocket |> rotateObject |> ignition |> acceleration |> consumeFuel
+                                rocket'' = List.foldl (\i accum->integrateRK4 dT accum) rocket' (List.repeat iterations True)
                                 hullOnPosition o = map (\v->vecAdd v o.pos) o.hull
-                                rocketHullOnPosition = hullOnPosition rocket'
+                                rocketHullOnPosition = hullOnPosition rocket''
                                 landed = (collision 10 (rocketHullOnPosition, polySupport) (g.base.hull,polySupport))
                                 crashed p1 p2 = collision 10 (p1, polySupport) (p2, polySupport)
                                 rocketCrashedOnRock = crashed rocketHullOnPosition
                                 rocketCrashedOnRocks = L.any (\rock -> rocketCrashedOnRock <| hullOnPosition rock) g.rocks
-                                fps = (1/dt) 
-                            in  if landed
+                                fps = (1/totalFrameTime) 
+                            in  if landed -- TODO this test must all happen in the iteration!!!
                                    then 
-                                    if smoothLanded rocket'
+                                    if smoothLanded rocket''
                                        then LevelCompleted { g | score <- truncate g.rocket.fuel }
                                        else GameOver g
                                    else if rocketCrashedOnRocks 
                                            then GameOver g
-                                           else Playing <| { g | t<-g.t+dt, fps <- fps, rocket <- rocket'}
+                                           else Playing <| { g | remainingFrameTime <-  totalFrameTime - (toFloat iterations)*dT, t<-g.t+frameTime, fps <- fps, rocket <- rocket''}
                           Add {- object -} -> gameState -- Add a new object to Game
                           Pause       -> Paused g
                           _           -> Playing g -- DEFAULT NoOp

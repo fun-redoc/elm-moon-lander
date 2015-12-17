@@ -42,9 +42,10 @@ defaultBase = { pos = (0,0)
 type alias Rock = { pos:Vec, hull:Polygon }
 defaultRock = { pos = (0,0), hull = [(-3.5,3.5),(3.5,3.5),(3.5,-3.5),(-3.5,-3.5)] }
 
-type alias Game = { t:Float, dt:Float, fps: Float, level:Level, score:Score, totalScore:Score, rocket:Rocket, base:Base, rocks:List Rock}
+type alias Game = { remainingFrameTime:Float,  t:Float, dt:Float, fps: Float, level:Level, score:Score, totalScore:Score, rocket:Rocket, base:Base, rocks:List Rock}
 defaultGame : Game
-defaultGame = {  fps = 0
+defaultGame = {  remainingFrameTime = 0.0
+               , fps = 0
                , t = 0.0
                , dt = 0.0
                , level = 0
